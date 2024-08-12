@@ -1360,7 +1360,7 @@ HAVING SUM(SALARY) = 17700000;
 SELECT DEPT_CODE, SUM(SALARY)
 FROM EMPLOYEE
 GROUP BY DEPT_CODE
-HAVING SUM(SALARY) > (SELECT MAX(SUM(SALARY))
+HAVING SUM(SALARY) = (SELECT MAX(SUM(SALARY))
                      FROM EMPLOYEE
                      GROUP BY DEPT_CODE);
 
@@ -1378,15 +1378,68 @@ WHERE DEPT_CODE = (SELECT DEPT_CODE FROM EMPLOYEE WHERE EMP_NAME = '전지연')
 AND EMP_NAME != '전지연';
 
 ------------------------------------------------------------------------------
+/*
+    2. 다중행 서브쿼리
+    서브쿼리를 수행한 결과값이 여러행일 때 (컬럼은 한개)
+    IN(서브쿼리) : 여러개의 결과값 중에서 한개라도 클 경우 조회
+    > ANY(서브쿼리) : 여러개의 결과값 중에서 한개라도 클 경우 조회
+    < ANY(서브쿼리) : 여러개의 결과값 중에서 한개라도 작을 경우 조회
+        비교대상 > ANY (서브쿼리의 결과값 ->값1, 값2, 값3...)
+        
+    > ALL(서브쿼리) : 여러개의 모든 결과값들 보다 클 경우 조회
+    < ALL(서브쿼리) : 여러개의 모든 결과값들 보다 작을 경우 조회
+*/
 
+--1) 유재식 또는 윤은해 사원과 같은 직급인 사원들의 사번, 사원명, 직급코드, 급여 조회
+--1-1) 유재식 또는 윤은해 사원의 직급
+SELECT
+    JOB_CODE
+FROM EMPLOYEE
+WHERE EMP_NAME IN('유재식','윤은해');
 
+--1-2)직급이 J3, J7인 사원들의 사번, 사원명, 직급코드, 급여 조회
+SELECT
+    EMP_ID,
+    EMP_NAME,
+    JOB_CODE,
+    SALARY
+FROM EMPLOYEE
+WHERE JOB_CODE IN ('J3','J7');
 
+--두 쿼리를 하나로 합하기
+SELECT EMP_ID,
+    EMP_NAME,
+    JOB_CODE,
+    SALARY
+FROM EMPLOYEE
+WHERE JOB_CODE IN(SELECT JOB_CODE FROM EMPLOYEE 
+                  WHERE EMP_NAME IN('유재식','윤은해'))
+AND EMP_NAME != '유재식' AND EMP_NAME != '윤은해';
 
+--2. 대리직급임에도 과장 직급 급여들 중 최소 급여보다 많이 받는 
+--   사원들의 사번, 사원명, 직급명, 급여 조회
+--두 쿼리를 합치기
+SELECT
+    EMP_ID,
+    EMP_NAME,
+    JOB_NAME,
+    SALARY
+FROM EMPLOYEE
+JOIN JOB USING(JOB_CODE)
+WHERE JOB_NAME = '대리' AND SALARY > ANY
+(SELECT SALARY
+FROM EMPLOYEE
+JOIN JOB USING(JOB_CODE)WHERE JOB_NAME = '과장');
 
+-------------------------------------------------------------------------------
+/*
+    3. 다중열 서브쿼리
+    결과값은 한 행이지만 나열된 컬럼수가 여러개일 경우
+*/
 
-
-
-
+--1) 하이유 사원과 같은 부서코드, 같은 직급코드에 해당하는 사원들 조회
+--(사원명, 부서코드, 직급코드, 입사일)
+-->단일행 서브쿼리
 
 
 
