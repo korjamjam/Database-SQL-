@@ -1440,15 +1440,79 @@ JOIN JOB USING(JOB_CODE)WHERE JOB_NAME = '과장');
 --1) 하이유 사원과 같은 부서코드, 같은 직급코드에 해당하는 사원들 조회
 --(사원명, 부서코드, 직급코드, 입사일)
 -->단일행 서브쿼리
+SELECT
+    EMP_NAME,
+    DEPT_CODE,
+    JOB_CODE,
+    HIRE_DATE
+FROM EMPLOYEE
+WHERE DEPT_CODE = (SELECT DEPT_CODE FROM EMPLOYEE WHERE EMP_NAME = '하이유')
+AND JOB_CODE = (SELECT JOB_CODE FROM EMPLOYEE WHERE EMP_NAME = '하이유')
+AND EMP_NAME != '하이유';
 
+--다중열로 바꿨을 때
+SELECT
+    EMP_NAME,
+    DEPT_CODE,
+    JOB_CODE,
+    HIRE_DATE
+FROM EMPLOYEE
+WHERE (DEPT_CODE, JOB_CODE)= (SELECT DEPT_CODE, JOB_CODE
+                              FROM EMPLOYEE 
+                              WHERE EMP_NAME = '하이유')
+                              AND EMP_NAME != '하이유';
 
---서브쿼리 못다한 정리할 것
+--2) 박나라 사원과 같은 직급코드, 같은 사수를 가지고 있는
+--   사원들의 사번, 사원명, 직급코드, 사수번호
+SELECT
+    EMP_ID,
+    EMP_NAME,
+    DEPT_CODE,
+    MANAGER_ID
+FROM EMPLOYEE
+WHERE (DEPT_CODE, MANAGER_ID) = (SELECT DEPT_CODE, MANAGER_ID
+                                 FROM EMPLOYEE
+                                 WHERE EMP_NAME = '박나라');
 
+/*
+    4. 다중행 다중열 서브쿼리
+    서브쿼리의 조회 결과값이 여러행 여러열일 경우
+*/
 
+--1) 각 직급별 최소급여를 받는 사원 조회(사번,사원명, 직급코드, 급여)
+SELECT
+    EMP_ID,
+    EMP_NAME,
+    DEPT_CODE,
+    SALARY
+FROM EMPLOYEE
+WHERE (DEPT_CODE, SALARY) IN (SELECT DEPT_CODE, MAX(SALARY)
+                              FROM EMPLOYEE GROUP BY DEPT_CODE)
+ORDER BY DEPT_CODE;
 
+--1. 부서 별 급여 합계가 전체 급여 총 합의 20%보다 많은 부서의 부서 명, 부서 별 급여 합계 조회
+SELECT
+    DEPT_TITLE,
+    SUM(SALARY)
+FROM EMPLOYEE
+JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID)
+GROUP BY DEPT_TITLE 
+HAVING SUM(SALARY) > (SELECT SUM(SUM(SALARY)) --그룹행이므로 WHRER이 아닌 HAVING
+                      FROM EMPLOYEE
+                      GROUP BY SALARY) *0.2;
 
-
-
+--2. 나이 상 가장 막내의 사원 코드, 사원 명, 나이, 부서 명, 직급 명 조회
+/*
+주민번호로 나이 구하기 (실제로는 이렇게 구하지는 않음)
+EXTRACT(YEAR FROM SYSDATE)-
+    CASE
+        WHEN SUBSTR(EMP_NO, 1, 2) <= TO_CHAR(SYSDATE, 'YY') THEN
+        2000+ TO_NUMBER(SUBSTR(EMP_NO,1,2))
+    ELSE
+        1900 + TO_NUMBER(SUBSTR(EMP_NO,1,2))
+        END +1
+*/
+--나이를 더 간단히 구할 수 있는 방법이 있을까? -> 나이 컬럼을 아예 새로만든다?
 
 
 
@@ -1672,8 +1736,37 @@ DELETE FROM EMPLOYEE
 WHERE EMP_NAME ='이소근';
 
 ------------------------------------------------------------------------------
+/*
+    <DCL : 데이터 제어문>
+    
+    계정에 시스템 권한 또는 객체접근 권한을 부여하거나 회수하는 구문
+    
+    >시스템 권한 : DB에 접근하는 권한, 객체를 생성할 수 잇는 권한
+    >객체 접근 권한 : 특정 객체들을 조작할 수 있는 권한
+    
+    CREATE USER 계정명 IDENTIFIED BY 비밀번호; --> 비밀번호는 대소문자를 구분함
+    GRANT 권한(CONNECT, RESOURCE) TO 계정
+*/
 
+SELECT * FROM ROLE_SYS_PRIVS;
 
+/*
+    <TCL : 트랜잭션 제어문>
+    -데이터베이스의 논리적 연산단위
+    -데이터의 변경사항등을 하나의 트랜잭션에 묶어서 처리
+    DML문 한개를 수행할 때 트랜잭션이 존재하지 않는다면 트랜잭션을 만들어서 묶어준다.
+                         트랜잭션이 존재한다면 해당 트랜잭션에 묶어서 처리
+    COMMIT하기 전까지의 변경사항들을 하나의 트랜잭션에 담는다.
+    -트랜잭션에 대상이 되는 SQL : INSERT, UPDATE, DELETE
+    
+    COMMIT(트랜잭션 종료 처리 후 확정)
+    ROLLBACK(트랜잭션에 있는 작업을 취소)
+    SAVEPOINT(임시저장)
+    
+    -COMMIT : 한 트랜잭션에 담겨있는 변경사항들을 실제 DB에 반영시키겠다는 의미
+    -ROLLBACK : 한 트랜잭션에 담겨있는 변경사항들을 삭제(취소)한 후 마지막 COMMIT 시점으로 돌아감
+    -SAVEPOINT 포인트명 : 현재 시점에 해당 포인트명으로 임시 저장 해주겠다.
+*/
 
 
 
