@@ -1768,25 +1768,123 @@ SELECT * FROM ROLE_SYS_PRIVS;
     -SAVEPOINT 포인트명 : 현재 시점에 해당 포인트명으로 임시 저장 해주겠다.
 */
 
+------------------------------------------------------------------------------
+/*
+    <VIEW 뷰>
+    
+    SELECT문(쿼리문)을 저장해둘 수 있는 객체
+    (자주 사용하는 SELECT문을 저장해두면 긴 SELECT문을 매번 다시 기술할 필요없이 사용할 수 있다.)
+    임테이블 같은 존재(실제 데이터가 담겨있는 건 아니다 -> 논리테이블)
+*/
 
+--한국에서 근무하는 사원들의 사번, 이름, 부서명, 급여, 근무국가명, 조회
+SELECT
+    EMP_ID,
+    EMP_NAME,
+    DEPT_TITLE,
+    SALARY,
+    NATIONAL_NAME
+FROM EMPLOYEE
+JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID)
+JOIN LOCATION ON (LOCATION_ID = LOCAL_CODE)
+JOIN NATIONAL USING (NATIONAL_CODE)
+WHERE NATIONAL_NAME = '한국';
 
+/*
+    1. VIEW 생성방법
+    
+    [표현식]
+    CREATE VIEW 뷰명
+    AS 서브쿼리
+*/
+--TB (테이브일 때)
+--VW_(뷰일 때)
+CREATE VIEW VW_EMPLOYEE
+AS(SELECT
+    EMP_ID,
+    EMP_NAME,
+    DEPT_TITLE,
+    SALARY,
+    NATIONAL_NAME
+    FROM EMPLOYEE
+        JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID)
+        JOIN LOCATION ON (LOCATION_ID = LOCAL_CODE)
+        JOIN NATIONAL USING (NATIONAL_CODE));
 
+--GRANT CREATE VIEW TO KH;
 
+SELECT * FROM VW_EMPLOYEE;
 
+--실제 실행되는 것은 아래와 같은 서브쿼리로 실행된다고 볼 수 있따.
+SELECT * 
+FROM (SELECT  --FROM절안에 있으므로 인라인뷰와 같다
+        EMP_ID,
+        EMP_NAME,
+        DEPT_TITLE,
+        SALARY,
+        NATIONAL_NAME
+      FROM EMPLOYEE
+      JOIN DEPARTMENT ON(DEPT_CODE = DEPT_ID)
+      JOIN LOCATION ON (LOCATION_ID = LOCAL_CODE)
+      JOIN NATIONAL USING (NATIONAL_CODE));
 
+--한국에서 근무하는 사원들의 사번, 이름, 부서명, 급여, 근무국가명, 조회
+SELECT *
+FROM VW_EMPLOYEE
+WHERE NATIONAL_NAME ='한국';
 
+--러시아에서 근무하는 사원들의 사번, 이름, 부서명, 급여, 근무국가명, 조회
+SELECT *
+FROM VW_EMPLOYEE
+WHERE NATIONAL_NAME ='러시아';
 
+--일본에서 근무하는 사원들의 사번, 이름, 부서명, 급여, 근무국가명, 조회
+SELECT *
+FROM VW_EMPLOYEE
+WHERE NATIONAL_NAME ='일본';
 
+--★CREATE OR REPLACE를 사용하면 VIEW가 없을 때는 생성, 이미 존재한다면 수정할 수 있다.
+--(VIEW만 가능, TABLE은 불가능함)
+CREATE OR REPLACE VIEW VWEMPLOYEE
+AS(SELECT
+        EMP_ID,
+        EMP_NAME,
+        DEPT_TITLE,
+        SALARY,
+        NATIONAL_NAME,
+        BONUS
+    FROM EMPLOYEE
+    JOIN DEPARTMENT ON(DEPT_CODE = DEPT_ID)
+    JOIN LOCATION ON (LOCATION_ID = LOCAL_CODE)
+    JOIN NATIONAL USING (NATIONAL_CODE));
+    
+SELECT * FROM VW_EMPLOYEE;    
 
+------------------------------------------------------------------------------
+/*
+    *뷰 컬럼에 별칭 부여
+    서브쿼리의 SELECT절에 함수식이나 산술연산식이 기술되어있다면 반드시 별칭을 부여해야 한다.
+*/
+CREATE OR REPLACE VIEW VW_EMP_JOB
+AS (SELECT
+        EMP_ID,
+        EMP_NAME,
+        JOB_NAME,
+        DECODE(SUBSTR(EMP_NO, 8, 1) , '1', '남', '2', '여') AS "성별",
+        EXTRACT(YEAR FROM SYSDATE) - EXTRACT(YEAR FROM HIRE_DATE) AS "근무년수"
+    FROM EMPLOYEE
+    JOIN JOB USING(JOB_CODE));
+    
+  SELECT * FROM VW_EMP_JOB
+WHERE 근무년수 >=20;
+    
+------------------------------------------------------------------------------
+--생성된 뷰를 통해서 DML(INSERT, UPDATE, DELETE) 사용가능
+--뷰를 통해서 조작하게 되면 실제 데이터가 담겨있는 테이블에 반영이 된다.
 
-
-
-
-
-
-
-
-
+CREATE OR REPLACE VIEW VW_JOB
+AS(SELECT JOB_CODE, JOB_NAME
+    FROM JOB);
 
 
 

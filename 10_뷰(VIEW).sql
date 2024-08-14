@@ -26,8 +26,8 @@ WHERE NATIONAL_NAME = '한국';
     CREATE VIEW 뷰명
     AS 서브쿼리
 */
---TB_ (테이블일 때)
---VW_ (뷰일 때
+--TB_ (테이브일 때)
+--VW_ (뷰일 때)
 CREATE VIEW VW_EMPLOYEE
 AS (SELECT
     EMP_ID,
