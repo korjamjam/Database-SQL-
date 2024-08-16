@@ -23,13 +23,27 @@ END;
 
 -----------------------------------------------------------------------------
 /*
-    1. DECLEARE 선언부
+    1. DECLARE 선언부
     변수 및 상수 선언하는 공간
-    일반타입변수, 레퍼런스타입변수, ROW타입변수
+    일반타입변수, 래퍼런스타입변수, ROW타입변수
     
-    1_1) 일반타입 변수 선언 및 초기화
+    1_1) 일반타입 변수 선언및 초기화
         [표현식] 변수명 [CONSTANT] 자료형 [:= 값]
 */
+
+DECLARE
+    EID NUMBER;
+    ENAME VARCHAR2(20);
+    PI CONSTANT NUMBER := 3.14;
+BEGIN
+    EID := 800;
+    ENAME := '전제민';
+    
+    DBMS_OUTPUT.PUT_LINE('EID : ' || EID);
+    DBMS_OUTPUT.PUT_LINE('ENAME : ' || ENAME);
+    DBMS_OUTPUT.PUT_LINE('PI : ' || PI);
+END;
+/
 
 DECLARE
     EID NUMBER;
@@ -54,15 +68,12 @@ DECLARE
     ENAME EMPLOYEE.EMP_NAME%TYPE;
     SAL EMPLOYEE.SALARY%TYPE;
 BEGIN
-    --EID := 800
+    --EID := 800;
     --ENAME := '전제민';
     --SAL := 1000000;
     
     --사번이 200번인 사원의 사번, 사원명, 급여 조회
-    SELECT
-        EMP_ID,
-        EMP_NAME,
-        SALARY
+    SELECT EMP_ID, EMP_NAME, SALARY
     INTO EID, ENAME, SAL
     FROM EMPLOYEE
     WHERE EMP_ID = &사번;
@@ -224,7 +235,7 @@ BEGIN
 END;
 /
 
---3) IF 조건식1 THEN 실행내용1 ELSEIF 조건식2 THEN 실행내용2 ... [ELSE 실행내용] END IF;
+--3) IF 조건식1 THEN 실행내용1 ELSIF 조건식2 THEN 실행내용2 ... [ELSE 실행내용] END IF;
 DECLARE
     SCORE NUMBER;
     GRADE VARCHAR2(1);
