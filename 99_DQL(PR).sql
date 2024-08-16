@@ -2244,15 +2244,3 @@ EXCEPTION
 END;
 /
 
-BEGIN
-    UPDATE EMPLOYEE
-    SET EMP_ID = '&변경할사번'
-    WHERE EMP_NAME = '노옹철';
-EXCEPTION
-    WHEN DUP_VAL_ON_INDEX THEN DBMS_OUTPUT.PUT_LINE('이미 존재하는 사원입니다.');
-END;
-/
-
-
-
-
