@@ -2166,24 +2166,92 @@ END;
 /
 DROP TABLE TEST;
 
+CREATE TABLE TEST(
+    TNO NUMBER PRIMARY KEY,
+    TDATE DATE
+);
 
+CREATE SEQUENCE SEQ_TNO;
 
+BEGIN
+    FOR I IN 1..100
+    LOOP
+        INSERT INTO TEST VALUES(SEQ_TNO.NEXTVAL, SYSDATE);
+    END LOOP;
+END;
+/
 
+SELECT * FROM TEST;
 
+-----------------------------------------------------------------------------
+/*
+    2) WHILE LOOP문
+    [표현식]
+    WHILE 반복문이 수행될 조건
+    LOOP
+        반복적으로 실행할 문장;
+    END LOOP;
+*/
 
+DECLARE
+    I NUMBER := 0;
+BEGIN
+    WHILE I < 10
+    LOOP
+        DBMS_OUTPUT.PUT_LINE(I);
+        I := I+1;
+    END LOOP;
+END;
+/
 
+-----------------------------------------------------------------------------
+/*
+    3. 예외처리부
+    예외(EXCEPTION) : 실행 중 발생하는 오류
+    
+    EXCEPTION
+        WHEN 예외명1 TEHN 처리구문1;
+        WHEN 예외명2 TEHN 처리구문2;
+        ...
+        
+    *시스템 예외(오라클에서 미리 정의해둔 예외)
+    -NO_DATE_FOUND : SELECT한 결과가 한행도 없을 떄
+    -TOO_MANY_ROWS : SELECT한 결과가 여러행일 경우
+    -ZERO_DIVIDE : 0으로 나눌 때
+    -DUP_VAL_ON_INDEX : UNIQUE제약조건 위배
+    ...
+*/
+--사용자가 입력한 수로 나눗셈한 결과를 출력
+DECLARE
+    RESULT NUMBER;
+BEGIN
+    RESULT := 10/&숫자;
+    DBMS_OUTPUT.PUT_LINE('결과는 : ' || RESULT);
+EXCEPTION
+    --WHEN ZERO_DIVIDE THEN DBMS_OUTPUT.PUT_LINE('나누기 연산시 0으로 나눌 수 없습니다.');
+    WHEN OTHERS THEN DBMS_OUTPUT.PUT_LINE('나누기 연산시 0으로 나눌 수 없습니다.');
+END;
+/
 
+ALTER TABLE EMPLOYEE ADD PRIMARY KEY(EMP_ID);
 
+BEGIN
+    UPDATE EMPLOYEE
+    SET EMP_ID = '&변경할사번'
+    WHERE EMP_NAME = '노옹철';
+EXCEPTION
+    WHEN DUP_VAL_ON_INDEX THEN DBMS_OUTPUT.PUT_LINE('이미 존재하는 사원입니다.');
+END;
+/
 
-
-
-
-
-
-
-
-
-
+BEGIN
+    UPDATE EMPLOYEE
+    SET EMP_ID = '&변경할사번'
+    WHERE EMP_NAME = '노옹철';
+EXCEPTION
+    WHEN DUP_VAL_ON_INDEX THEN DBMS_OUTPUT.PUT_LINE('이미 존재하는 사원입니다.');
+END;
+/
 
 
 

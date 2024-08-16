@@ -297,12 +297,13 @@ END;
     END LOOP;
 */
 
+
 BEGIN
     FOR I IN 1..5
     LOOP
         DBMS_OUTPUT.PUT_LINE(I);
     END LOOP;
-END;
+END;    
 /
 
 BEGIN
@@ -310,8 +311,10 @@ BEGIN
     LOOP
         DBMS_OUTPUT.PUT_LINE(I);
     END LOOP;
-END;
+END;    
 /
+
+DROP TABLE TEST;
 
 CREATE TABLE TEST(
     TNO NUMBER PRIMARY KEY,
@@ -323,7 +326,7 @@ CREATE SEQUENCE SEQ_TNO;
 BEGIN
     FOR I IN 1..100
     LOOP
-        INSERT INTO TEST VALUES(SEQ_TMO.NEXTVAL, SYSDATE);
+        INSERT INTO TEST VALUES(SEQ_TNO.NEXTVAL, SYSDATE);
     END LOOP;
 END;
 /
@@ -390,72 +393,3 @@ EXCEPTION
      WHEN DUP_VAL_ON_INDEX THEN DBMS_OUTPUT.PUT_LINE('이미 존재하는 사원입니다.');
 END;
 /
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
