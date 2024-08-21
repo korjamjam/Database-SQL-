@@ -267,15 +267,86 @@ SELECT EMP_NAME,
 EXTRACT(YEAR FROM HIRE_DATE) AS "입사년도",
 EXTRACT(MONTH FROM HIRE_DATE) AS "입사월",
 EXTRACT(DAY FROM HIRE_DATE) AS "입사일"
+FROM EMPLOYEE
+ORDER BY 2,3,4;
+
+/*
+    [형변환 함수]
+    *TO_CHAR : 숫자타입 또는 날짜 타입의 값을 문자타입으로 변환시켜주는 함수
+    
+    [표현법]
+    TO_CHAR(숫자 | 문자, [포멧])
+*/
+
+-- 숫자 -> 문자
+SELECT TO_CHAR(1234) FROM DUAL;
+SELECT TO_CHAR(12, '99999') FROM DUAL;
+SELECT TO_CHAR(12,'00000') FROM DUAL;
+SELECT TO_CHAR(2000000, 'L99999') FROM DUAL;
+
+SELECT TO_CHAR(3500000,'L9,999,999') FROM DUAL;
+
+--날짜타입 -> 문자타입
+SELECT SYSDATE FROM DUAL;
+SELECT TO_CHAR(SYSDATE) FROM DUAL;
+SELECT TO_CHAR(SYSDATE, 'HH:MI:SS')FROM DUAL;
+SELECT TO_CHAR(SYSDATE, 'AM HH:MI:SS')FROM DUAL; -- AM, PM어떤것을 사용하건 형식을 정해주는 것이기에 동일하게 나타남.
+SELECT TO_CHAR(SYSDATE, 'HH24:MI:SS')FROM DUAL;
+SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD DAY DY')FROM DUAL;
+SELECT TO_CHAR(SYSDATE, 'MON, YYYY')FROM DUAL;
+SELECT TO_CHAR(SYSDATE, 'YYYY"년" MM"월" DD"일" HH:MI:SS')FROM DUAL;
+
+--사원들의 이름, 입사날짜(0000년 00월 00일) 조회
+SELECT EMP_NAME AS 이름, TO_CHAR(HIRE_DATE, 'YYYY"년" MM"월" DD"일"') AS 입사날짜
 FROM EMPLOYEE;
 
+--년도와 관련된 포멧
+SELECT TO_CHAR(SYSDATE, 'YYYY'),
+       TO_CHAR(SYSDATE, 'YY'),
+     --TO_CHAR(SYSDATE, 'RRRR'), --RR룰이 따로 존재한다. -> 50년 이상값이 들어오면 +100 EX) 1954 -> 2054
+       TO_CHAR(SYSDATE, 'YEAR')
+FROM DUAL;
 
+SELECT HIRE_DATE, TO_CHAR(HIRE_DATE, 'YYYY'), TO_CHAR(HIRE_DATE, 'RRRR')
+FROM EMPLOYEE;
 
+--월과 관련된 포멧
+SELECT TO_CHAR(SYSDATE, 'MM'),
+       TO_CHAR(SYSDATE, 'MON'),
+       TO_CHAR(SYSDATE, 'MONTH')
+FROM DUAL;
 
+--일에 관련된 포멧
+SELECT TO_CHAR(SYSDATE, 'DDD'), -- 오늘이 이번년도에 몇번째 일수
+       TO_CHAR(SYSDATE, 'DD'), -- 오늘 일자
+       TO_CHAR(SYSDATE, 'D') -- 요일을 숫자로 나타냄 1 : 일요일 ~ 7 : 토요일
+FROM DUAL;
 
+--요일을 나타내는 포멧
+SELECT TO_CHAR(SYSDATE, 'DAY'),
+       TO_CHAR(SYSDATE, 'DY')
+FROM DUAL;
 
+/*
+    TO_NUMBER : 문자타입의 데이터를 숫자타입으로 변환시켜주는 함수
+    
+    [표현법]
+    TO_NUMBER(문자, [포멧])
+*/
 
+SELECT TO_NUMBER('05123456789') FROM DUAL;
 
+SELECT '100000' + '55000' FROM DUAL;
+SELECT '100,000' + '55,000' FROM DUAL;
+SELECT TO_NUMBER('100,000', '999,999') + TO_NUMBER('55,000', '99,000') FROM DUAL;
+
+--===========================================================================
+
+/* 
+    [NULL처리 함수]
+    
+    [표현법]
+*/
 
 
 
