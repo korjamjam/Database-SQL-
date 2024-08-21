@@ -41,7 +41,7 @@ FROM DEPARTMENT;
 --JOIN절에 같이 조인하고자하는 테이블 기술 + 매칭시킬 컬럼에대한 조건
 --JOIN USING / JOIN ON
 
---1. 연결할 두 컬럼명이 다른 경우(EMPLOYEE : DEPT_CODE / DEPARMENT : DEPT_ID)
+--1. 연결할 두 컬럼명이 다른 경우(EMPLOYEE : DEPT_CODE / DEPARTMENT : DEPT_ID)
 -- JOIN ON
 --전체 사원들의 사번, 사원명, 부서코드, 부서명
 SELECT EMP_ID, EMP_NAME, DEPT_CODE, DEPT_TITLE

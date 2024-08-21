@@ -20,7 +20,7 @@ FROM EMPLOYEE
 WHERE DEPT_CODE 
 = (SELECT DEPT_CODE
 FROM EMPLOYEE
-WHERE EMP_NAME ='³ë¿ËÃ¶') AND
+WHERE EMP_NAME ='³ë¿ËÃ¶'); AND
 EMP_NAME != '³ë¿ËÃ¶';
 
 --¼­ºê Äõ¸® ¿¹½Ã2)

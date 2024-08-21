@@ -347,18 +347,50 @@ SELECT TO_NUMBER('100,000', '999,999') + TO_NUMBER('55,000', '99,000') FROM DUAL
     
     [표현법]
 */
+--*NVL(컬럼, 해당컬럼이 NULL일 경우 보여줄 값)
+SELECT EMP_NAME, NVL(BONUS, 0)
+FROM EMPLOYEE;
 
+--전 사원의 이름, 보너스 포함 연봉 조회
+SELECT EMP_NAME, NVL((SALARY + (SALARY * BONUS)) * 12, 0)
+FROM EMPLOYEE;
 
+--*NVL2(컬럼, 반환값1, 반환값2)
+--반환값1 : 해당컬럼이 존재할 경우 보여줄 값
+--반환값2 : 해당컬럼이 NULL일 경우 보여줄 값
 
+SELECT EMP_NAME, BONUS, NVL2(BONUS,'O','X')
+FROM EMPLOYEE;
 
+--===========================================================================
 
+/*
+    1. 등가조인(EQUAL JOIN) / 내부조인(INNER JOIN)
+    연결시키는 컬럼의 값이 일치하는 행들만 조회(일치하는 값이 없는 행은 조회 제외)
+*/
 
+-----> ANSI구문
+--FROM절에 기준이 되는 테이블 하나 기술
+--JOIN절에 같이 조인하고자 하는 테이블 기술 + 매칭시킬 컬럼에 대한 조건
+--JOIN USING / JOIN ON
 
+--1. 연결할 두 컬럼명이 다른 경우 (EMPLOYEE : DEPT_CODE / DEPARTMENT : DEPT_ID)
+--JOIN ON
+--전체 사원들의 사번, 사원명, 부서코드, 부서명
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, DEPT_TITLE
+FROM EMPLOYEE
+JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID);
 
+--2. 연결할 두 컬럼명이 동일한 경우
+--전체 사원들의 사번, 사원명, 직급코드, 직급명
+SELECT EMP_ID, EMP_NAME, E.JOB_CODE, JOB_NAME
+FROM EMPLOYEE E
+JOIN JOB J ON (E.JOB_CODE = J.JOB_CODE);
 
-
-
-
+--USING
+SELECT EMP_ID, EMP_NAME, JOB_CODE, JOB_NAME
+FROM EMPLOYEE
+JOIN JOB USING (JOB_CODE);
 
 
 
