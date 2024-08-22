@@ -392,37 +392,279 @@ SELECT EMP_ID, EMP_NAME, JOB_CODE, JOB_NAME
 FROM EMPLOYEE
 JOIN JOB USING (JOB_CODE);
 
+/* 
+    *서브쿼리
+    -하나의 SQL문 안에 포함된 또 다른 SELECT문
+    -메인 SQL문을 위해 보조 역할을 하는 쿼리
+*/
+
+--노옹철 사원과 같은 부서에 속한 사원들 조회
+SELECT *
+FROM EMPLOYEE
+WHERE DEPT_CODE = 'D9';
+
+--노옹철사원은 어떤 부서일까?
+SELECT DEPT_CODE
+FROM EMPLOYEE
+WHERE EMP_NAME ='노옹철';
+
+--위에 두 쿼리를 하나의 쿼리로 변경하자
+SELECT *
+FROM EMPLOYEE
+WHERE DEPT_CODE = (SELECT DEPT_CODE
+                   FROM EMPLOYEE
+                   WHERE EMP_NAME ='노옹철');
+
+--서브 쿼리 예시2)
+--전 직원의 평균 급여보다 더 많은 급여를 받는 사원들의 사번, 이름, 직급코드
+SELECT
+    EMP_ID,
+    EMP_NAME,
+    JOB_CODE
+FROM EMPLOYEE
+WHERE SALARY >= (SELECT ROUND(AVG(SALARY))
+                 FROM EMPLOYEE);
+
+/*
+    *서브쿼리의 구분
+    서브쿼리를 수행한 결과값이 몇행 몇열로 나오느냐에 따라서 분류
+    
+    --단일행 서브쿼리 : 서브쿼리의 조회 결과값이 오로지 1개일 때
+    --다중행 서브쿼리 : 서브쿼리의 조회 결과값이 여러행 때 (여러행 한열)
+    --다중열 서브쿼리 : 서브쿼리의 조회 결과 값이 한행이지만 컬럼이 여러개 일때
+    --다중행 다중열 서브쿼리 : 서브쿼리의 조회 결과값이 여러행 여러 컬럼일 때
+    
+    >> 서브쿼리의 결과값에 따라서 서브쿼리 앞쪽에 연산자가 달라진다.
+*/
+
+/*
+    1. 단일행 서브쿼리
+    서브쿼리의 조회 결과값이 오로지 1개일 때(한행 한열)
+    일반 비교연산자 사용 가능
+    = != > <=...
+*/
+--1. 전 직원의 평균 급여보다 급여를 더 적게받는 사원들의 사원명, 직급코드, 급여 조회
+SELECT
+    EMP_NAME,
+    JOB_CODE,
+    SALARY
+FROM EMPLOYEE
+WHERE SALARY <= (SELECT ROUND(AVG(SALARY))
+                 FROM EMPLOYEE);
+
+--2. 최저급여를 받는 사원의 사번, 이름, 급여, 입사일 조회
+SELECT
+    EMP_ID,
+    EMP_NAME,
+    SALARY,
+    HIRE_DATE
+FROM EMPLOYEE
+WHERE SALARY = (SELECT MIN(SALARY)
+                FROM EMPLOYEE);
+
+--3. 노옹철 사원의 급여보다 많이 받는 사원들의 사번, 이름, 부서코드 ,급여 조회
+SELECT
+    EMP_ID,
+    EMP_NAME,
+    DEPT_CODE,
+    SALARY
+FROM EMPLOYEE
+WHERE SALARY > (SELECT SALARY FROM EMPLOYEE WHERE EMP_NAME = '노옹철');
+
+--4. 노옹철 사원의 급여보다 많이 받는 사원들의 사번, 이름 부서명, 급여 조회
+SELECT
+    EMP_ID,
+    EMP_NAME,
+    DEPT_TITLE,
+    SALARY
+FROM EMPLOYEE
+JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID)
+WHERE SALARY > (SELECT SALARY FROM EMPLOYEE WHERE EMP_NAME = '노옹철');
+
+--5. 부서별 급여합이 가장 큰 부서의 부서코드, 급여합 ★★
+SELECT
+    DEPT_CODE,
+    SUM(SALARY)
+FROM EMPLOYEE
+GROUP BY DEPT_CODE
+HAVING SUM(SALARY) = (SELECT MAX(SUM(SALARY))
+                      FROM EMPLOYEE
+                      GROUP BY DEPT_CODE);
+
+--===========================================================================
+--INSERT 행추가
+
+--1) INSERT INTO 테이블명 VALUES(값,값,값....)
+
+/*
+    [표현식]
+    INSERT ALL
+    INTO 테이블명1 VALUES(컬럼, 컬럼, 컬럼...)
+    INTO 테이블명2 VLAUES(컬럼, 컬럼...)
+    서브쿼리;
+*/
+
+--UPDATE 행수정
+/*
+    UPDATE 테이블명
+    SET 컬럼 = '값'
+        컬럼 = '값'
+    [WHERE 조건] -> 생략시 전체 모든 행의 데이터가 변경
+*/
+
+--DELETE 행삭제
+/*
+    [표현식]
+    DELETE FORM 테이블명
+    [WHERE 조건] -> WHERE절 제시안하면 전체행 다 삭제됨
+*/
+
+--컬럼
+--ALTER 컬럼을 추가/수정/삭제 할 수 있음.
+/*
+    1_1) 컬럼 추가(ADD)
+    ALTER TABLE 테이블명 변경할 내용
+    --DEPT_TALBE에 CNAME컬럼 추가
+    ALTER TABLE DEPT_TABLE ADD CNAME VARCHAR2(20);
+    
+    
+    1_2) 컬럼 수정(MODIFY)
+    -- 데이터타입 수정 : MODIFY 컬럼명 바꾸고자하는 데이터타입
+    -- DEFAULT값 수정 : MODIFY 컬럼명 DEFAULT 변경할기본값
+    
+    --DEPT_TITLE 컬럼들 VARCHAR2(40)
+    ALTER TABLE DEPT_TABLE MODIFY DEPT_TITLE VARCHAR2(40);
+    --LNAME컬럼의 기본값을 '미국'으로 변경
+    ALTER TABLE DEPT_TABLE MODIFY LNAME DEFAULT '미국';
+    
+    
+    1_3) 컬럼 삭제(DROP COLUMN) : DROP COLUMN 삭제하고자하는 컬럼
+    
+    ALTER TABLE DEPT_COPY DROP COLUMN DEPT_ID;
+    ALTER TABLE DEPT_COPY DROP COLUMN CNAME;
+    ALTER TABLE DEPT_COPY DROP COLUMN LNAME;
+    ALTER TABLE DEPT_COPY DROP COLUMN DEPT_TITLE;
+
+    ALTER TABLE DEPT_COPY DROP COLUMN LOCATION_ID; -- 테이블은 최소 하나이상의 컬럼이 필요
+    
+    
+    
+    --테이블 삭제
+    DROP TABLE DEPT_TABLE;
+    
+    --어딘가에 참조되고있는 부모테이블은 함부로 삭제가되지 않는다.
+    --만약 지우고자한다면
+    --1. 자식테이블 먼저 전부 삭제
+    --2. 그냥 부모테이블만 삭제하는데 제약조건까지 삭제하는 방법
+    DROP TABLE 테이블명 CASCADE CONSTRAINT;
+    
+    --3) 컬럼명/제약조건명/테이블명 변경
+    
+    --3_1) 컬럼명 변경 : RENAME COLUMN 기존컬러명 TO 바꿀 컬럼명
+    -- DEPT_TITLE -> DEPT_NAME
+    ALTER TABLE DEPT_TABLE RENAME COLUMN DEPT_TITLE TO DEPT_NAME;
+    
+    --3_2) 제약조건명 변경 : RENAME CONSTAINT 기존제약조건명 TO 바꿀제약조건명
+    ALTER TABLE DEPT_TABLE RENAME CONSTRAINT SYS_C007151 TO DTABLE_ID_NN;
+
+    --3_3) 테이블명 변경 : RENAME TO 바꿀테이블명
+    ALTER TABLE DEPT_TABLE RENAME TO DEPT_TEST;
+
+*/
+/*
+    1. VIEW 생성방법
+    
+    [표현식]
+    CREATE VIEW 뷰명
+    AS 서브쿼리
+*/
+--TB_ (테이블일 때)
+--VW_ (뷰일 때)
+
+--CREATE OR REPLACE를 사용하면 VIEW가 없을 때는 생성, 이미 존재한다면 수정할 수 있다.
+--(VIEW만 가능, TABLE은 불가능함)
+/*
+ [상세표현식]
+    CREATE [OR REPLACE] [FORCE | NOFORCE] VEIW 뮤명
+    AS 서브쿼리
+    [WITH CHECK OPTION]
+    [WITH READ ONLY];
+    
+    1) OR REPLACE : 기존에 동일한 뷰가 있을 경우 갱신하고, 없을 경구 새로 생성해라
+    2) FORCE | NOFORCE
+        > FORCE : 서브쿼리에 기술된 테이블이 존재하지 않아도 뷰가 생성되도록해라
+          NOFORCE : 서브쿼리에 기술된 테이블이 존재하는 테이블이여야만 한다.(기본값)
+    3) WITH CHECK OPTION : DML시 서브쿼리에 기술된 조건에 부합한 값으로만 DML이 가능하도록
+    4) WITH READ ONLY : 뷰에 대해서 조회만 가능하도록 
+*/
+
+SELECT EMP_NAME, EMP_NO, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE DEPT_CODE='D9' OR DEPT_CODE='D6' AND SALARY >= 3000000
+AND EMAIL LIKE '___@_%' ESCAPE '@'  AND BONUS IS NOT NULL;
+
+/*
+    1. DEPT_CODE='D9' OR DEPT_CODE='D6'을 소괄호로 묶거나 DEPT_CODE IN ('D9','D6')을 작성한다.
+    2. SALARY이 300만원 이상이므로 SALARY > 3000000은 잘못되었다.
+    3.  EMAIL LIKE '____%'에서 와일드 카드 문자와 일반문자를 구분해줘야한다.
+    4. 보너스가 있어야 하므로 BONUS IS NULL은 잘못되었다.
+    5. '남자이고' 이므로 EMP_NO를 이용한 조건을 추가해야한다.
+*/
+SELECT EMP_NAME, EMP_NO, DEPT_CODE, SALARY, EMAIL
+FROM EMPLOYEE
+WHERE DEPT_CODE IN ('D9','D6') AND SALARY >= 3000000
+AND EMAIL LIKE '___@_%' ESCAPE '@'  AND BONUS IS NOT NULL
+AND SUBSTR(EMP_NO,8,1) IN ('1','3');
 
 
+SELECT DEPT_CODE, SUM(SALARY) 합계, FLOOR(AVG(SALARY)) 평균, COUNT(*) 인원수
+FROM EMPLOYEE
+GROUP BY DEPT_CODE
+HAVING FLOOR(AVG(SALARY)) > 2800000
+ORDER BY DEPT_CODE ASC;
+
+SELECT ROWNUM, A.EMP_NAME, A.SALARY
+FROM(
+    SELECT ROWNUM, EMP_NAME, SALARY
+    FROM EMPLOYEE
+    WHERE SALARY IS NOT NULL AND ROWNUM <= 3
+    ORDER BY SALARY DESC) A;
 
 
+/*
+    FOREIGN KEY(외래키) 제약조건
+    다른테이블에 존재하는 값만 들어와야되는 특정 컬럼에 부여하는 제약조건
+    -> 다른 테이블을 참조한다고 표현
+    -> 주로 FORIGN KEY 제약조건으로 인해 테이블간 관계가 형성된다.
+    
+    >컬럼레벨방식
+    컬럼명 자료형 REFERENCES 참조할테이블명[참조할 컬럼명]
+    
+    >테이블레벨방식
+    FOREIGN KEY(컬럼명) REFERENCES 참조할테이블명[참조할 컬럼명]
+    
+    -> 참조할 컬럼명 생략시 참조할 테이블의 PRIMARY KEY로 지정된 컬럼이 매칭된다.
+*/
+DROP TABLE MEM;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+CREATE TABLE MEM(
+    MEM_NO NUMBER PRIMARY KEY,
+    MEM_ID VARCHAR2(20) NOT NULL UNIQUE, --컬럼레벨방식
+    MEM_PWD VARCHAR2(20) NOT NULL,
+    MEM_NAME VARCHAR2(20) NOT NULL,
+    GENDER CHAR(3) CHECK(GENDER IN ('남', '여')), -- 남, 여
+    PHONE VARCHAR2(13),
+    EMAIL VARCHAR2(50),
+    GRADE_ID NUMBER, -- REFERENCES MEM_GRADE(GRADE_CODE)
+    FOREIGN KEY(GRADE_ID) REFERENCES MEM_GRADE(GRADE_CODE)
+);
+INSERT INTO MEM VALUES(1, 'USER1', 'PASS01', '홍길동', '여', NULL, NULL, NULL);
+INSERT INTO MEM VALUES(2, 'USER2', 'PASS02', '홍길순', '남', NULL, NULL, 10);
+INSERT INTO MEM VALUES(3, 'USER3', 'PASS03', '최지원', '남', NULL, NULL, 20);
+INSERT INTO MEM VALUES(4, 'USER4', 'PASS04', '김수민', '여', NULL, NULL, 30);
+SELECT * FROM MEM;
+INSERT INTO MEM VALUES(5, 'USER5', 'PASS05', '박지민', '여', NULL, NULL, 40);
+--PARENT KEY를 찾을 수 없다는 오류 발생
 
 
 
